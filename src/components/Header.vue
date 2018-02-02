@@ -1,0 +1,282 @@
+<template>
+	<navbar>
+		<button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" @click="mobileSidebarToggle">&#9776;</button>
+		<a class="navbar-brand"></a>
+		<ul class="nav navbar-nav d-md-down-none">
+			<li class="nav-item">
+				<a class="nav-link navbar-toggler sidebar-toggler" @click="sidebarMinimize">&#9776;</a>
+			</li>
+
+		</ul>
+		<!-- <Menu mode="horizontal" class="headerZ" :theme="theme1" style=" color:#fff;	" active-name="1" v-for="(x,index) in header_Routers">
+        <MenuItem name="1">
+            内容管理
+        </MenuItem>
+        <MenuItem name="2">
+            用户管理
+        </MenuItem>
+        
+        <MenuItem name="4">
+            综合设置
+        </MenuItem>
+    </Menu> -->
+
+		<ul v-if="showClientWidth > 1200" class="nav navbar-nav d-md-down-none topRouters">
+			<Row style="">
+				<Col v-for="(x,index) in header_Routers" :key="x.id" :lg="2">
+				<li class="nav-item header-item " @click="active(x,index)">
+
+					<router-link tag="div" :to='x.path' style="" class="nav-link">
+						<p>
+							<!-- <Icon :type="x.icon" size='30' color="#2d8cf0"></Icon> -->
+						</p>
+						<p class="showBottom" style="color:white;font-size:13px;"> {{x.name}} </p>
+					</router-link>
+				</li>
+				</Col>
+			</Row>
+
+		</ul>
+		<Dropdown  v-if="showClientWidth < 1200" class="dropdownS" >
+			<!-- <Button type="primary"> -->
+				<span class="nav-link" style="color:#fff">下拉菜单</span>
+				<!-- <Icon type="arrow-down-b"></Icon> -->
+			<!-- </Button> -->
+			<DropdownMenu v-for="(x,index) in header_Routers" :key="x.id" slot="list"  >
+				<DropdownItem>
+					<li class="nav-item header-item "  @click="active(x,index)">
+
+					<router-link tag="div" :to='x.path' style="" class="nav-link">
+						{{x.name}}
+					</router-link>
+				</li>
+				</DropdownItem>
+				
+			</DropdownMenu>
+		</Dropdown>
+		<!-- <ul class="nav navbar-nav d-md-down-none mediaShow">
+			<li class="nav-link" @click="showOption">选项</li>
+		</ul> -->
+		<ul class="nav navbar-nav ml-auto">
+
+			<li class="nav-item d-md-down-none">
+				<a class="nav-link">
+					<Icon type="android-notifications" size="20"></Icon>
+					<span class="badge badge-pill badge-danger">5</span>
+				</a>
+			</li>
+
+			<Dropdown class="nav-item">
+				<a href="javascript:void(0)">
+					<span slot="button">
+						<img src="../../static/img/avatars/favoritePerson.jpg" style="width: 50px;height: 50px;" class="img-avatar" alt="o">
+						<span class="d-md-down-none">admin</span>
+					</span>
+				</a>
+				<Dropdown-menu slot="list">
+					<Dropdown-item>
+						<p class="dropdown-itemp">
+							<Icon type="alert"></Icon>Updates
+							<span class="badge badge-info">42</span>
+						</p>
+
+					</Dropdown-item>
+					<Dropdown-item>
+						<p class="dropdown-itemp">
+							<Icon type="chatbox-working"></Icon>Messages
+							<span class="badge badge-success">42</span>
+						</p>
+
+					</Dropdown-item>
+					<Dropdown-item>
+						<p class="dropdown-itemp">
+							<Icon type="chatbox-working"></Icon>Messages
+							<span class="badge badge-danger">42</span>
+						</p>
+
+					</Dropdown-item>
+					<Dropdown-item divided>
+						<p class="dropdown-itemp">
+							<Icon type="android-contact"></Icon> Profile</p>
+
+					</Dropdown-item>
+					<Dropdown-item>
+						<p class="dropdown-itemp">
+							<Icon type="android-settings"></Icon> Settings</p>
+					</Dropdown-item>
+
+					<Dropdown-item>
+						<a href="" @click="Logout">
+							<p class="dropdown-itemp">
+								<Icon type="power"></Icon>Logout</p>
+						</a>
+					</Dropdown-item>
+
+				</Dropdown-menu>
+			</Dropdown>
+
+			<li class="nav-item d-md-down-none">
+				<a class="nav-link navbar-toggler aside-menu-toggler" @click="asideToggle">&#9776;</a>
+			</li>
+		</ul>
+	</navbar>
+</template>
+<script>
+import navbar from "./Navbar";
+import { mapGetters } from "vuex";
+// import { siblings,trim } from "static/bil/publicMethod";
+export default {
+    name: "homeHeader",
+    components: {
+        navbar
+    },
+    data() {
+        return {
+            theme1: "light"
+        };
+    },
+    computed: {
+        ...mapGetters(["header_Routers", "siderbar_routers", "showClientWidth"])
+    },
+    watch: {
+        siderbar_routers: "asd"
+    },
+    methods: {
+        Logout(e) {
+            e.preventDefault();
+            this.$store
+                .dispatch("LogOut")
+                .then(() => {
+                    this.$router.push({ path: "/login" });
+                })
+                .catch(err => {
+                    this.$message.error(err);
+                });
+        },
+        click() {
+            // do nothing
+        },
+        sidebarToggle(e) {
+            e.preventDefault();
+            document.body.classList.toggle("sidebar-hidden");
+        },
+        sidebarMinimize(e) {
+            e.preventDefault();
+
+            document.body.classList.toggle("sidebar-minimized");
+        },
+        mobileSidebarToggle(e) {
+            e.preventDefault();
+
+            document.body.classList.toggle("sidebar-mobile-show");
+        },
+        asideToggle(e) {
+            e.preventDefault();
+            document.body.classList.toggle("aside-menu-hidden");
+        },
+        active(x, index) {
+            let topArray = this.siblings(event.path[2].parentNode);
+            event.path[2].classList.add("topActive"); //头部导航 点击显示底部border
+            for (let y in topArray) {
+                topArray[y].firstChild.classList.remove("topActive");
+                // topArray[y].classList.remove("topActive");
+            }
+            console.log(x);
+            let timer = setTimeout(() => {
+                //定时获取dom 防止点击时dom未加载获取不到
+                let showItem = document
+                    .getElementsByClassName("sidebar")[0]
+                    .getElementsByClassName("nav")[0]
+                    .getElementsByClassName("nav-item")[0];
+                showItem.classList.add("open"); //点击头部导航默认展开第一nav-item
+                let navItemArr = this.siblings(showItem);
+                for (let x in navItemArr) {
+                    navItemArr[x].classList.remove("open"); //将其他item都关闭
+                }
+                clearTimeout(timer);
+            }, 0);
+        },
+        asd() {
+            // console.log(this.siderbar_routers);
+        },
+        showOption() {
+            let showO = document.getElementsByClassName("topRouters")[0];
+            if (showO.style.display == "block") {
+                showO.style.display = "none";
+            } else {
+                showO.style.display = "block";
+            }
+            // showO.style.display='block';
+            console.log(showO.style);
+        }
+    },
+    mounted() {
+		let showO = document.getElementsByClassName("topRouters")[0];
+        let headerTextArr = document.getElementsByClassName("header-item");
+        let showBottom = document.getElementsByClassName("showBottom");
+		let needText;
+		if(showO) { //判断是否有showO节点
+				for (let x in headerTextArr) {
+			//头部导航 初始显示底部border
+			
+            needText = showBottom[x].innerText;
+            if (needText == this.siderbar_routers.name) {
+                headerTextArr[x].classList.add("topActive");
+            }
+        }
+			}
+        
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+@import "static/css/scss/media-queries";
+.dropdown-itemp {
+    text-align: left;
+    font-size: 12px;
+    padding: 10px;
+}
+
+.header-item .ivu-dropdown-item {
+    padding: 15px;
+}
+.topRouters {
+    position: absolute;
+    right: 6.0625rem;
+    display: block;
+    .ivu-row {
+        width: 55rem;
+    }
+}
+.header-item {
+    width: 100%;
+    .nav-link {
+        line-height: 3.4375rem;
+    }
+
+    height: 55px;
+}
+a {
+    color: rgb(218, 212, 212) !important;
+}
+
+.topActive {
+    border-bottom: 3px solid #408bd2 !important;
+    p {
+        font-size: 15px;
+    }
+}
+.mediaShow {
+    position: absolute;
+    top: 0;
+    right: 12rem;
+    width: 7rem;
+    height: 100%;
+    color: #ffffff;
+    li {
+        margin: 0 auto;
+    }
+}
+@include inputList;
+</style>
