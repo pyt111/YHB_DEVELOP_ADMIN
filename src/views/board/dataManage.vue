@@ -1,21 +1,5 @@
 <template>
-	<div>
-		<div>数据管理</div>
-		<Row :gutter="16" class="search" style="margin-left:5px">
-
-			<Col :xs="24" :sm="8" :md="8" :lg="8">
-			<div class="top">
-				<span>数据期间:</span>
-				<Date-picker :value="value2" format="yyyy/MM/dd" type="daterange" placeholder="选择日期" style="width: 200px"></Date-picker>
-				<Button type="success" style="width: 80px;" @click="check('formInline')">搜索</Button>
-			</div>
-			</Col>
-			<Col :xs="24" :sm="12" :md="12" :lg="12">
-			<div class="header">
-				<Button v-for="(item,index ) in options1" :key="item.id" @click="change" class="header_span" :class="{today:today[index]}">{{item}}</Button>
-			</div>
-			</Col>
-		</Row>
+	<div  style=" position: relative;">
 
 		<!-- <Row :gutter="16" style="margin-top: 20px;">
 			<Col :xs="24" :sm="8" :md="8" :lg="8">
@@ -182,9 +166,49 @@
 			</Col>
 
 		</Row> -->
-		<Row>
-			<Col>
-				
+		<div>数据管理</div>
+		<Row :gutter="16" class="search" style="margin-left:5px">
+
+			<Col :xs="24" :sm="8" :md="8" :lg="8">
+			<div class="top">
+				<span>数据期间:</span>
+				<Date-picker :value="value2" format="yyyy/MM/dd" type="daterange" placeholder="选择日期" style="width: 200px"></Date-picker>
+				<Button type="success" style="width: 80px;" @click="check('formInline')">搜索</Button>
+			</div>
+			</Col>
+			<Col :xs="24" :sm="12" :md="12" :lg="12">
+			<div class="header">
+				<Button v-for="(item,index ) in options1" :key="item.id" @click="change" class="header_span" :class="{today:today[index]}">{{item}}</Button>
+			</div>
+			</Col>
+		</Row>
+		<search-top :tableArr="inputs" :btnSize="btnSize" :inptuSzie="inptuSzie"></search-top>
+		<Row type="flex" align="top" class="cardList">
+			<Spin size="large" fix v-if="loading"></Spin>
+			<Col v-for=" x in cardList" :key="x.id" :xs="24" :sm="12" :md="8">
+			<Card style="width:90%;margin:10px auto;">
+				<p slot="title" class="cardP">
+					<!-- <Icon type="ios-film-outline"></Icon> -->
+					{{x.title}}
+					<span class="spanOne" style="">合计金额:
+						<span class="spanTwo">{{x.allMoney}}</span>
+					</span>
+				</p>
+				<a href="#" slot="extra" @click.prevent="changeLimit">
+					<Icon type="ios-loop-strong"></Icon>
+					{{x.totals}}
+				</a>
+				<ul class="cardUl">
+					<li v-for="y in x.list">
+						<!-- <a :href="item.url" target="_blank">{{ item.name }}</a> -->
+						<img src="static/img/board/b2.png" class="cardImg" />
+						<router-link tag="a" :to="{name:y.url}" class="cardLink">{{y.name}}</router-link>
+						<span class="cardTime">
+							<span>发送时间:</span>{{y.time}}</span>
+
+					</li>
+				</ul>
+			</Card>
 			</Col>
 		</Row>
 
@@ -193,6 +217,8 @@
 
 <script>
 import axios from "axios";
+import SearchTop from "components/customTemplate/search/InputList"; //input搜索框组件
+import { mapGetters } from "vuex";
 const end = new Date();
 const start = new Date();
 export default {
@@ -201,11 +227,52 @@ export default {
             options1: ["今天", "最近7天", "最近一个月", "全部"],
             value2: [start, end],
             today: [1, 0, 0, 0],
-            user1: [],
-            totals: ""
+			user1: [],
+			loading:true,
+            cardList: [],
+            inputs: [
+                {
+                    kind: "daterange",
+                    id: "time",
+                    name: "数据期间:",
+                    placeholder: "请选择日期",
+                    type: "daterange",
+                    colSize: { xs: 12, sm: 6, md: 6, lg: 5 },
+                    val: ""
+                }
+            ],
+            inptuSzie: "",
+            btnSize: ""
         };
     },
+    components: {
+        SearchTop
+    },
+    computed: {
+        ...mapGetters([
+            //获取getters的table_serchData方法返回的值
+            "table_serchData" //搜索框value
+        ])
+    },
+    watch: {
+        table_serchData: "postData" //监听table_serchData发生变化执行bignFunce方法
+    },
     methods: {
+        postData() {
+            this.loading = true;
+            axios.post("/board/dataManage")
+                .then(reponse => {
+					setTimeout(() => {
+						this.loading = false;
+					},1000)
+                    
+                    this.cardList = reponse.data;
+                    console.log(this.cardList);
+                })
+                .catch(error => {
+                    // alert("网络错误");
+                });
+        },
         change() {
             var Div = event.currentTarget;
             var text = Div.children[0].innerHTML;
@@ -267,29 +334,19 @@ export default {
             });
         }
     },
-    created() {
-        // this.loading = true;
-        // axios
-        //     .get("http://localhost:9001/static/dataManage.json")
-        //     .then(reponse => {
-        //         console.log(reponse);
-        //         this.loading = false;
-        //         this.user1 = reponse.data.total;
-        //         this.totals = reponse.data.totals;
-        //     })
-        //     .catch(error => {
-        //         alert("网络错误");
-        //     });
-    }
+    mounted() {
+		this.postData()
+	}
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .search {
     display: block;
     width: 100%;
     padding: 8px;
     background-color: #ffffff;
+    margin-bottom: 20px;
 }
 .top {
     float: left;
@@ -308,46 +365,40 @@ export default {
     color: #ffffff;
 }
 /*下面部分*/
-.mian {
-    background-color: #ffffff;
-}
+.cardList {
+    .cardP {
+        margin: 0 0 0 10px;
+        font-weight: 500;
+        font-size: 16px;
+        span {
+            font-weight: 100;
+            font-size: 13px;
+            color: #9c9393;
+        }
 
-.age {
-    height: 40px;
-    padding: 10px;
-    font-weight: bold;
-    border-bottom: 2px;
-    display: flex;
-}
-.age_one {
-    flex: 1;
-}
-.age_tow {
-    font-size: 12px;
-    color: #7d7d7d;
-}
-.footer {
-    display: flex;
-    padding: 10px;
-}
-.footer_left {
-    flex: 1;
-}
-.footer_right {
-    line-height: 40px;
-    color: #d4e0e5;
-}
-.state-overview .ivu-col {
-    margin-bottom: 20px;
-}
+        .spanOne {
+        }
+        .spanTwo {
+        }
+    }
+    .cardImg {
+        margin: 0 15px 0 10px;
+    }
+    .cardUl {
+        li {
+			height: 50px;
+			position: relative;
+            .cardTime {
+				position: absolute;
+				 right: 0;  
+				 top: 25%;
+			   color: #9c9393;
+            }
 
-.state-overview .state-value .value {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.state-overview .state-value .title {
-    font-size: 14px;
+            .cardLink {
+                line-height: 50px;
+            }
+        }
+    }
 }
 </style>

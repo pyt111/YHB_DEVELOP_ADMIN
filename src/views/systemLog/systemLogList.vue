@@ -66,8 +66,9 @@ export default {
                 list: "list"
             },
             apiPort: {
-                countPort: "http://192.168.1.18:8080/getByGradeNm",
-                listPort: "http://192.168.1.18:8080/getByGradeNm",
+                countPort: "systemLog/getByGradeNm/count",
+                listPort: "systemLog/getByGradeNm/list",
+                jsons:'getByGradeNm'
             },
             baseConfig: {
                 data: [],
@@ -79,8 +80,8 @@ export default {
                 columns: [
                     {
 						title: "编号",
-						id:'eventId',
-                        key: "eventId",
+						id:'memberRates',
+                        key: "memberRates",
                         align: "center"
                     },
                     {

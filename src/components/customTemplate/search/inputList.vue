@@ -5,17 +5,24 @@
                 <Col v-for="(x,index) in tableArr" :key="x.id" :xs="x.colSize.xs" :sm="x.colSize.sm" :md="x.colSize.md" :lg="x.colSize.lg">
                 <FormItem v-if="x.kind == 'textInput'&&showClientWidth >= 768" :prop="x.id" :label="x.name">
                     <Input  :id="x.id" :placeholder="x.placeholder" size="small"></Input>
-                    <!-- <Input v-if="inputSize < 768" v-model="tableArr[index].val" :id="x.id" :placeholder="x.placeholder" ></Input> -->
                 </FormItem>
                 <FormItem v-if="x.kind == 'textInput'&&showClientWidth < 768" :prop="x.id" :label="x.name">
-                    <!-- <Input v-if="" v-model="tableArr[index].val" :id="x.id" :placeholder="x.placeholder"></Input> -->
                     <Input v-if="" :id="x.id" :placeholder="x.placeholder"></Input>
                 </FormItem>
                 <FormItem v-if="x.kind == 'date'&&showClientWidth >= 768" :prop="x.id" :label="x.name">
                     <DatePicker  :id="x.id" :placeholder="x.placeholder" size="small"></DatePicker>
                 </FormItem>
-                <FormItem v-if="x.kind == 'date'&&showClientWidth < 768" :prop="x.id" :label="x.name">
+                <FormItem v-if="x.kind == 'daterange'&&showClientWidth < 768":prop="x.id" :label="x.name">
+                    <DatePicker v-if="inptuSzie == ''" type="daterange" :id="x.id" :placeholder="x.placeholder"></DatePicker>
+                    <DatePicker v-if="inptuSzie != ''" type="daterange" :id="x.id" :placeholder="x.placeholder" :size="inptuSzie"></DatePicker>
+                </FormItem>
+                <FormItem v-if="x.kind == 'daterange'&&showClientWidth >= 768"  :prop="x.id" :label="x.name">
+                    <DatePicker v-if="inptuSzie == ''" type="daterange" :id="x.id" :placeholder="x.placeholder"></DatePicker>
+                    <DatePicker v-if="inptuSzie != ''" type="daterange" :id="x.id" :placeholder="x.placeholder"  :size="inptuSzie"></DatePicker>
+                </FormItem>
+                 <FormItem v-if="x.kind == 'date'&&showClientWidth < 768" :prop="x.id" :label="x.name">
                     <DatePicker :id="x.id" :placeholder="x.placeholder"></DatePicker>
+                   
                 </FormItem>
                   <FormItem v-if="x.kind == 'select'&&showClientWidth >= 768":prop="x.id" :label="x.name">
                     <Select :id="x.id"  style="width:160px" :placeholder="x.placeholder" size="small" >
@@ -28,39 +35,34 @@
                     </Select>
                 </FormItem>
                 </Col>
-                <!-- <Button type="primary" @click="commit">Signin</Button> -->
-                <FormItem class="buttons">
-                    <Button v-if="showClientWidth < 768" type="info" icon="ios-search" class="searchBtn" @click="handleSubmit('putDataObj')">搜索</Button>
-                    <Button v-if="showClientWidth > 768" type="info" icon="ios-search" class="searchBtn" @click="handleSubmit('putDataObj')" size="small">搜索</Button>
-
+                <FormItem class="buttons" v-if="showClientWidth < 768">
+                    <Button v-if="btnSize == ''" type="info" icon="ios-search" class="searchBtn" @click="handleSubmit('putDataObj')">搜索</Button>
+                    <Button v-if="btnSize != ''" type="info" icon="ios-search" class="searchBtn" @click="handleSubmit('putDataObj')" :size="btnSize">搜索</Button>
+                </FormItem>
+                <FormItem class="buttons" v-if="showClientWidth >= 768">
+                    <Button v-if="btnSize == ''" type="info" icon="ios-search" class="searchBtn" @click="handleSubmit('putDataObj')">搜索</Button>
+                    <Button v-if="btnSize != ''" type="info" icon="ios-search" class="searchBtn" @click="handleSubmit('putDataObj')" :size="btnSize">搜索</Button>
                 </FormItem>
             </Row>
 
         </Form>
-        <!-- <Input v-if="inputSize > 768"  placeholder="1" size="small"></Input>
-        <Input v-if="inputSize < 768"  placeholder="2" ></Input> -->
-        <!-- <Row> -->
-        <!-- <Col v-for="(x,index) in tableArr" :xs="x.colSize.xs" :sm="x.colSize.sm" :md="x.colSize.md" :lg="x.colSize.lg" :key="x.id"> -->
-
-        <!-- <DatePicker  v-if="x.kind == 'date'"  v-model="tableArr[index].val" class="timeinput":id="x.id" :type="x.type" :options="options1" :placeholder="x.placeholder" style="width: 100%;" format="yyyy-MM-dd" @on-change="asd(tableArr[index].val=$event)"></DatePicker>
-            <Input v-model="tableArr[index].val" :size='tableArr[index].size' v-if="x.kind == 'textInput'" :id="x.id" :placeholder="x.placeholder" style="width: 100%" @on-change="met(x,index)">
-            <span slot="prepend">{{x.name}}</span>
-            </Input> -->
-
-        <!-- </Col> -->
-
-        <!-- </Row> -->
-        <!-- <Button icon="ios-search" type="primary" class="searchBtn" @click="commit">搜索</Button> -->
     </div>
 </template>
 
 <script>
-// import 'static/css/scss/media-queries.scss'
 import { mapGetters } from "vuex";
 export default {
     name: "formInput",
     props: {
-        tableArr: Array
+        tableArr: Array,
+        btnSize:{
+            type: String,
+            default:''
+        },
+        inptuSzie:{
+            type:String,
+            default:''
+        }
     },
     computed: {
         ...mapGetters([
@@ -166,15 +168,15 @@ export default {
 @import "static/css/scss/media-queries";
 .inputList {
     // position: relative;
-    text-align: center;
+    // text-align: center;
     .ivu-input-group {
         margin: 0 auto;
     }
 
     .searchBtn {
-        padding: 0.2rem;
-        width: 5rem;
-        margin-left: 0;
+        // padding: 0.2rem;
+        // width: 5rem;
+        // margin-left: 0;
     }
 
     // @include inputList();

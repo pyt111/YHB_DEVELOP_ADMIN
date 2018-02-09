@@ -1,9 +1,11 @@
 import userList from 'static/json/userList'
 import biaodiList from 'static/json/loanmanage'
+import getByGradeNm from 'static/json/getByGradeNm'
 
 const jsonData = {
 	userList: userList,
-	biaodiList: biaodiList
+	biaodiList: biaodiList,
+	getByGradeNm:getByGradeNm
 }
 
 

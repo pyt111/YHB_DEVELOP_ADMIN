@@ -89,6 +89,7 @@ export const asyncRouterMap = [
 			{ path: '/jsontree', name: 'JSON视图', icon: 'merge', component: _import('JsonTree'), meta: { role: ['admin'] } },
 			{ path: '/tabledetail/:id', name: 'TableDetail', hidden: true, component: _import('TableDetail'), meta: { role: ['admin'] } },
 			{ path: '/tinymce', name: 'Tinymce编辑器', icon: "android-document", component: _import('Tinymce'), meta: { role: ['admin'] } },
+			{ path: '/quill', name: 'quill编辑器', icon: "android-document", component: _import('quill'), meta: { role: ['admin'] } },
 			{ path: '/markdown', name: 'Markdown', icon: "android-list", component: _import('Markdown'), meta: { role: ['admin'] } },
 			{
 				path: '/userModule',
