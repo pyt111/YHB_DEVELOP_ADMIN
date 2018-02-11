@@ -11,20 +11,20 @@
                         <span id="rect">方块</span>
                     </p>
                     <p>文字</p>
-                    <input type="text" id="message" value="hahaha" onchange="change()">
+                    <input type="text" id="message" value="hahaha" @change="change()">
                     <p>重力</p>
                     <input type="range" id="gra" value="0" min="-1" max="1" step="0.1" @change="changeV()">
                     <p>周期</p>
                     <input type="range" id="dur" value="0.4" min="0.1" max="0.99" step="0.01" @change="changeV()">
                     <p>速度</p>
-                    <input type="range" id="speed" value="0.1" min="0" max="5" ste="0.01" @change="changeV()">
+                    <input type="range" id="speed" value="0.1" min="0" max="5" ste="0.01" v @change="changeV()">
                     <p>半径</p>
                     <input type="range" id="rad" value="2" min="1.8" max="20" step="0.1" @change="changeV()">
                     <p>分辨率</p>
                     <input type="range" id="res" value="10" min="3" max="20" step="1" @change="change()">
                 </div>
 
-                <div id="btn">
+                <div id="btn" @click="toggl">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -38,81 +38,279 @@
 </template>
 
 <script>
-import {Particle} from "static/bil/particles/particles";
+import { Particle } from "static/bil/particles/particles";
 // import index from "static/bil/particles/index";
-import shape from "static/bil/particles/shape";
-// import utils from "static/bil/particles/utils";
+// import { Shape } from "static/bil/particles/shape";
+import U from "static/bil/particles/utils";
 // import sidebar from "static/bil/particles/sidebar";
 export default {
     name: "particle",
     data() {
         return {
+            c: "",
             W: "800",
             H: "400",
-            gridY:'',
-            gridX:'',
-            size: 200,
+            gridY: "",
+            gridX: "",
+            size: 150,
+            x: "",
+            y: "",
             placement: [],
             showText: "新年快乐",
-            context:'',
-            word:''
+            context: "",
+            word: "",
+            globalID: "",
+            colors: [
+                "#f44336",
+                "#e91e63",
+                "#9c27b0",
+                "#673ab7",
+                "#3f51b5",
+                "#2196f3",
+                "#03a9f4",
+                "#00bcd4",
+                "#009688",
+                "#4CAF50",
+                "#8BC34A",
+                "#CDDC39",
+                "#FFEB3B",
+                "#FFC107",
+                "#FF9800",
+                "#FF5722"
+            ],
+
+            graVal: 0,
+            durVal: 0.4,
+            spdVal: 0.1,
+            radVal: 2,
+            resolution: 10
         };
     },
     methods: {
+        toggl() {
+            let btn = document.getElementById("btn");
+            let control = document.getElementById("control");
+            console.log(btn);
+            control.classList.toggle("slide");
+        },
         change() {
-            this.context.clearRect(0, 0, W, H);
-            gridX = parseFloat(resolution.value);
-            gridY = parseFloat(resolution.value);
-            word.placement = [];
-            word.text = message.value;
-            word.getValue();
+            this.context.clearRect(0, 0, this.W, this.H);
+            this.showText = document.getElementById("message").value;
+            this.placement = [];
+            this.getValue();
         },
         changeV() {
-            graVal = parseFloat(gravity.value);
-            durVal = parseFloat(duration.value);
-            spdVal = parseFloat(speed.value);
-            radVal = parseFloat(radius.value);
+            let gravity = document.getElementById("gra");
+            let duration = document.getElementById("dur");
+            let speed = document.getElementById("speed");
+            let radius = document.getElementById("rad");
+            let resolution = document.getElementById("res");
+            this.graVal = parseFloat(gravity.value);
+            this.durVal = parseFloat(duration.value);
+            this.spdVal = parseFloat(speed.value);
+            this.radVal = parseFloat(radius.value);
+            this.resolution = parseFloat(resolution.value);
+            this.context.clearRect(0, 0, this.W, this.H);
+            this.placement = [];
+            this.getValue();
+            // cancelAnimationFrame(this.globalID)
         },
-        Shape(x, y, texte) {
-        this.context.textAlign = "center";
-		 this.context.font =  this.size + "px arial";
-		 this.context.fillText(this.showText, x,y);
-        let W = this.W;
-        let H = this.H;
-        let gridY =this.gridY;
-        let gridX = this.gridX;
-        let type = 'ball';
-         let idata = this.context.getImageData(0, 0, W, H);
-        let placement = this.placement;
-		 let buffer32 = new Uint32Array(idata.data.buffer);
-    
-		 for(let j=0; j < H; j += gridY){
-		 	for(let i=0 ; i < W; i += gridX){
-                //  console.log(buffer32[j * W + i])
-		 		if(buffer32[j * W + i]){
-		 			let particle = new Particle(i, j, type);
-                     this.placement.push(particle);
-                      console.log(particle);
-		 		}
-		 	}
-		 }
-        this.context.clearRect(0, 0, W, H);
+        Shape() {
+            let W = this.W;
+            let H = this.H;
+            let idata = this.context.getImageData(0, 0, W, H);
+            let buffer32 = new Uint32Array(idata.data.buffer);
+            return {
+                size: this.size,
+                text: this.showText,
+                x: this.x,
+                y: this.y,
+                placement: this.placement
+            };
+        },
+        getValue() {
+            let W = this.W;
+            let H = this.H;
+            let gridY = this.gridY;
+            let gridX = this.gridX;
+            let type = "ball";
+            this.context.textAlign = "center";
+            this.context.font = this.size + "px arial";
+            this.context.fillText(this.showText, this.x, this.y);
+            console.log(this.showText);
+            let idata = this.context.getImageData(0, 0, W, H);
+            let buffer32 = new Uint32Array(idata.data.buffer);
+            for (let j = 0; j < H; j += gridY) {
+                for (let i = 0; i < W; i += gridX) {
+                    if (buffer32[j * W + i]) {
+                        let particle = new this.Particle(i, j, type);
+                        this.placement.push(particle);
+                    }
+                }
+            }
+
+            this.context.clearRect(0, 0, W, H);
+        },
+        Particle(xx, yy, type) {
+            let that = this;
+            let radiuss = document.getElementById("rad");
+            let radius = 1.1;
+            let graVal = document.getElementById("gra");
+            // let gravity = parseFloat(graVal.value);
+            // let radVal = parseFloat(radiuss.value);
+            let radVal = this.radVal;
+            let duration = document.getElementById("dur");
+            let durVal = parseFloat(duration.value);
+            let futurRadius = U.utils.randomInt(radVal, radVal + 3); //[1.1,5.1]
+
+            let speed = document.getElementById("speed");
+            let spdVal = parseFloat(speed.value);
+            let resolution = document.getElementById("res");
+            let resVal = parseFloat(resolution.value);
+            let rebond = U.utils.randomInt(1, 5);
+            let x = xx;
+            let y = yy;
+            // console.log(x,y);
+            let dying = false;
+
+            let base = [x, y];
+            // console.log(this.base);
+            let vx = 0;
+            let vy = 0;
+            this.type = type;
+            let friction = 0.99;
+            let gravity = graVal;
+            let color = this.colors[
+                Math.floor(Math.random() * this.colors.length)
+            ];
+
+            let getSpeed = function() {
+                return Math.sqrt(vx * vx + vy * vy);
+            };
+
+            let setSpeed = function(speed) {
+                var heading = getHeading();
+                vx = Math.cos(heading) * speed;
+                vy = Math.sin(heading) * speed;
+            };
+
+            let getHeading = function() {
+                return Math.atan2(vy, vx);
+            };
+
+            let setHeading = function(heading) {
+                var speed = getSpeed();
+                vx = Math.cos(heading) * speed;
+                vy = Math.sin(heading) * speed;
+            };
+
+            let update = function(heading) {
+                x += vx;
+                y += vy;
+                vy += graVal;
+
+                vx *= friction;
+                vy *= friction;
+
+                if (radius < futurRadius && dying === false) {
+                    radius += durVal;
+                } else {
+                    dying = true;
+                }
+
+                if (dying === true) {
+                    radius -= durVal;
+                }
+
+                if (type === "ball") {
+                    that.context.save();
+                    that.context.fillStyle = this.color;
+                    that.context.beginPath();
+                    that.context.arc(
+                        this.x,
+                        this.y,
+                        radius,
+                        Math.PI * 2,
+                        false
+                    );
+                    that.context.closePath();
+                    that.context.fill();
+                    that.context.restore();
+                }
+
+                if (type === "rect") {
+                    that.context.save();
+                    that.context.fillStyle = this.color;
+                    that.context.beginPath();
+                    that.context.fillRect(
+                        this.x,
+                        this.y,
+                        futurRadius,
+                        futurRadius
+                    );
+                    that.context.closePath();
+                    that.context.fill();
+                    that.context.restore();
+                }
+
+                if (this.y < 0 || radius < 1) {
+                    x = this.base[0];
+                    y = this.base[1];
+                    dying = false;
+                    radius = 1.1;
+                    setSpeed(spdVal);
+                    futurRadius = U.utils.randomInt(radVal, radVal + 3);
+                    setHeading(
+                        U.utils.randomInt(
+                            U.utils.degreesToRads(0),
+                            U.utils.degreesToRads(360)
+                        )
+                    );
+                }
+            };
+
+            setSpeed(U.utils.randomInt(0.1, 0.5));
+            setHeading(
+                U.utils.randomInt(
+                    U.utils.degreesToRads(0),
+                    U.utils.degreesToRads(360)
+                )
+            );
+            return {
+                base,
+                color,
+                dying,
+                friction,
+                futurRadius,
+                getHeading,
+                getSpeed,
+                gravity,
+                radius,
+                rebond,
+                setHeading,
+                setSpeed,
+                type,
+                update,
+                vx,
+                vy,
+                x,
+                y
+            };
         },
         draw() {
-            //  window.requestAnimationFrame(drawFrame, c);
+            this.globalID = window.requestAnimationFrame(this.draw, this.c);
             this.context.clearRect(0, 0, this.W, this.H);
             // console.log(this.placement.length);
 
             for (let i = 0; i < this.placement.length; i++) {
                 // console.log(this.placement);
-                // this.word.placement[i].update();
+                this.placement[i].update();
             }
         }
     },
     mounted() {
-        
-        let c = document.getElementById("myCanvas");
-        this.context = c.getContext("2d");
+        this.c = document.getElementById("myCanvas");
+        this.context = this.c.getContext("2d");
         // console.log(this.context);
         let W = this.W;
         let H = this.H;
@@ -140,26 +338,16 @@ export default {
             "#FF5722"
         ];
 
-        var message = document.getElementById("message"),
-            gravity = document.getElementById("gra"),
-            duration = document.getElementById("dur"),
-            speed = document.getElementById("speed"),
-            radius = document.getElementById("rad"),
-            resolution = document.getElementById("res"),
-            graVal = parseFloat(gravity.value),
-            durVal = parseFloat(duration.value),
-            spdVal = parseFloat(speed.value);
-            let radVal = parseFloat(radius.value),
-            resVal = parseFloat(resolution.value);
-
-        this.word = new this.Shape(W / 2, H / 2, message.value);
-        // word.getValue();
-        // this.drawFrame
-        this.draw()
+        this.x = W / 2;
+        this.y = H / 2;
+        let word = new this.Shape();
+        this.getValue();
+        this.draw();
+        // console.log(word);
         // (function drawFrame() {
         //     window.requestAnimationFrame(drawFrame, c);
         //     this.context.clearRect(0, 0, W, H);
-            
+
         //     for (var i = 0; i < this.placement.length; i++) {
         //         this.placement[i].update();
         //     }

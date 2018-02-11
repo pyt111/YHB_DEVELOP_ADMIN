@@ -1,10 +1,19 @@
-const Shape =(x, y, texte) => {
-		this.x = x;
-		this.y = y;
-		this.size = 150;
+export const Shape = (x, y, texte) => {
+	console.log(x,y,texte);
+	return {
+		x:x,
+		y:y,
+		size:150,
+		text: texte,
+		placement:[],
+		vectors: []
+	}
+		// this.x = x;
+		// this.y = y;
+		// this.size = 150;
 
-		this.text = texte;
-		this.placement = [];
+		// this.text = texte;
+		// this.placement = [];
 		//this.vectors = [];
 	}
 

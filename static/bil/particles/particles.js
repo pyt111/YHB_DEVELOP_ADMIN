@@ -1,6 +1,7 @@
 import U from './utils'
-export const Particle = (x, y, type) =>{
-  console.log(x, y, type)
+export const Particle = (xx, yy, type,context) =>{
+  // console.log(this);
+  // console.log(xx, yy, type)
   let colors = [
     "#f44336",
     "#e91e63",
@@ -19,72 +20,77 @@ export const Particle = (x, y, type) =>{
     "#FF9800",
     "#FF5722"
 ];
-  let radius = document.getElementById("rad")
-  radius = 1.1;
-  let gravity = document.getElementById("gra"),
-  graVal = parseFloat(gravity.value)
-  let radVal = parseFloat(radius.value)
+  let radiuss = document.getElementById("rad");
+  let radius = 1.1;
+  let  graVal = document.getElementById("gra");
+  this.gravity = parseFloat(graVal.value);
+  let radVal = parseFloat(radiuss.value);
+  let duration = document.getElementById('dur');
+  let durVal = parseFloat(duration.value);
+  let futurRadius = U.utils.randomInt(radVal, radVal+3); //[1.1,5.1]
   
-  this.futurRadius = U.utils.randomInt(radVal, radVal+3); //[1.1,5.1]
+  let speed = document.getElementById('speed');
+  let spdVal = parseFloat(speed.value);
+  let resolution = document.getElementById('res');
+  let resVal = parseFloat(resolution.value);
+  let rebond = U.utils.randomInt(1, 5);
+  let x = xx;
+  let y = yy;
+  // console.log(x,y);
+  let dying = false;
   
-  this.rebond = U.utils.randomInt(1, 5);
-  this.x = x;
-  this.y = y;
-  
-  this.dying = false;
-  
-  this.base = [x, y];
-
-  this.vx = 0;
-  this.vy = 0;
+  let base = [x, y];
+// console.log(this.base);
+  let vx = 0;
+  let vy = 0;
   this.type = type;
-  this.friction = .99;
-  this.gravity = graVal;
-  this.color = colors[Math.floor(Math.random() * colors.length)];
+  let friction = .99;
+  let gravity = graVal;
+  let color = colors[Math.floor(Math.random() * colors.length)];
 
-  this.getSpeed = function() {
-    return Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+  let getSpeed = function() {
+    return Math.sqrt(vx * vx + vy * vy);
   };
 
-  this.setSpeed = function(speed) {
-    var heading = this.getHeading();
-    this.vx = Math.cos(heading) * speed;
-    this.vy = Math.sin(heading) * speed;
+  let setSpeed = function(speed) {
+    var heading = getHeading();
+    vx = Math.cos(heading) * speed;
+    vy = Math.sin(heading) * speed;
   };
 
-  this.getHeading = function() {
-    return Math.atan2(this.vy, this.vx);
+  let getHeading = function() {
+    return Math.atan2(vy,vx);
   };
 
-  this.setHeading = function(heading) {
-    var speed = this.getSpeed();
-    this.vx = Math.cos(heading) * speed;
-    this.vy = Math.sin(heading) * speed;
+  let setHeading = function(heading) {
+    var speed = getSpeed();
+    vx = Math.cos(heading) * speed;
+    vy = Math.sin(heading) * speed;
   };
 
   let update = function(heading) {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vy += graVal;
+    x += vx;
+    y += vy;
+    vy += graVal;
 
-    this.vx *= this.friction;
-    this.vy *= this.friction;
+    vx *= friction;
+    vy *= friction;
     
-    if(this.radius < this.futurRadius && this.dying === false){
-      this.radius += durVal;
+    if(radius < futurRadius && dying === false){
+      radius += durVal;
     }else{
-      this.dying = true;
+      dying = true;
     }
       
-    if(this.dying === true){
-      this.radius -= durVal;
+    if(dying === true){
+      radius -= durVal;
     }
     
     if(type === "ball"){
       context.save();
       context.fillStyle = this.color;
       context.beginPath();
-      context.arc(this.x, this.y, this.radius, Math.PI * 2, false);
+      context.arc(this.x, this.y,radius, Math.PI * 2, false);
       context.closePath();
       context.fill();
       context.restore();
@@ -94,27 +100,27 @@ export const Particle = (x, y, type) =>{
       context.save();
       context.fillStyle = this.color;
       context.beginPath();
-      context.fillRect(this.x, this.y, this.futurRadius, this.futurRadius)
+      context.fillRect(this.x, this.y, futurRadius, futurRadius)
       context.closePath();
       context.fill();
       context.restore();
     }
     
 
-    if (this.y < 0 || this.radius < 1) {
-      this.x = this.base[0];
-      this.y = this.base[1];
-      this.dying = false;
-      this.radius = 1.1;
-      this.setSpeed(spdVal);
-      this.futurRadius = U.utils.randomInt(radVal, radVal+3);  
-      this.setHeading(U.utils.randomInt(U.utils.degreesToRads(0), U.utils.degreesToRads(360)));
+    if (this.y < 0 || radius < 1) {
+      x = this.base[0];
+      y = this.base[1];
+      dying = false;
+      radius = 1.1;
+      setSpeed(spdVal);
+      futurRadius = U.utils.randomInt(radVal, radVal+3);  
+      setHeading(U.utils.randomInt(U.utils.degreesToRads(0), U.utils.degreesToRads(360)));
     }
 
   }
 
-  this.setSpeed(U.utils.randomInt(.1, .5));
-  this.setHeading(U.utils.randomInt(U.utils.degreesToRads(0), U.utils.degreesToRads(360)));
-
+  setSpeed(U.utils.randomInt(.1, .5));
+  setHeading(U.utils.randomInt(U.utils.degreesToRads(0), U.utils.degreesToRads(360)));
+  return {base,color,dying,friction,futurRadius,getHeading,getSpeed,gravity,radius,rebond,setHeading,setSpeed,type,update,vx,vy,x,y}
 }
 
