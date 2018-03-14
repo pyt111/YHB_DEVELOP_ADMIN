@@ -1,7 +1,9 @@
 <template>
     <div>
         <div ref="mian">
-            <Row>
+           
+            <search-top :tableArr="inputs"></search-top>
+             <Row>
                 <Col :span="24">
                 <!-- <div class="search">
                     <span>审核状态：</span>
@@ -14,7 +16,7 @@
                 </div> -->
 
                 </Col>
-                <Col :span="24" style="margin-top:20px;">
+                <Col :span="24" style="">
                 <div class="search" style="width:60px">
                     <router-link :to="{name:'新增标的管理',params:{uuID:'0'}}">
                         <Icon type="plus-circled" color="#2db7f5"></Icon>
@@ -28,7 +30,6 @@
                 </div>
                 </Col>
             </Row>
-            <search-top :tableArr="inputs"></search-top>
             <Row class="table">
                 <Col :span="24">
                 <!-- <Table :columns="columns1" :data="page_data1" ref='table' @on-selection-change='selChange'></Table> -->
@@ -45,6 +46,7 @@
                 </Col>
 
             </Row>
+
         </div>
         <!-- 合同0 -->
         <div style="height:100px;"></div>

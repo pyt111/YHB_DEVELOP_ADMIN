@@ -144,17 +144,10 @@ export default {
     methods: {
         Logout(e) {
             e.preventDefault();
-            
             this.$store
                 .dispatch("LogOut")
                 .then(() => {
-                     location.reload();
-                     let t = setTimeout(() => {
-                         console.log('111111111111');
-                         this.$router.push({ path: "/login" });
-                     },1000)
-                     clearTimeout(t)
-                    // this.$router.push({ path: "/login" });
+                    this.$router.push({ path: "/login" });
                 })
                 .catch(err => {
                     this.$message.error(err);

@@ -2,15 +2,23 @@ import { asyncRouterMap, constantRouterMap } from 'src/router';
 
 /**
  * 通过meta.role判断是否与当前用户权限匹配
+ * 没有设置权限的路由直接返回，设置权限的通过some()方法过滤;
  * @param roles
  * @param route
  */
 function hasPermission(roles, route) {
-  console.log(route)
+
   if (route.meta && route.meta.role) {
-    return roles.some(role => route.meta.role.indexOf(role) >= 0)
+    // console.log('111111111111');
+    // console.log(roles.some(role => route.meta.role.indexOf(role) >= 0))
+    return roles.some(role => {//使用数组方法some()检查用户是否满足条件--- 返回Boolean对象
+      // console.log(role);
+      // console.log(route.meta.role)
+      return route.meta.role.indexOf(role) >= 0
+    })
   } else {
-    return true
+    // console.log('111111111');
+    return true //如果没有设置权限则直接返回true
   }
 }
 
@@ -20,19 +28,19 @@ function hasPermission(roles, route) {
  * @param roles
  */
 function filterAsyncRouter(asyncRouterMap, roles) {
-  const accessedRouters = asyncRouterMap.filter(route => {
-    console.log(route)
-    //	console.log(hasPermission(roles, route))
-    if (hasPermission(roles, route)) {
+  const accessedRouters = asyncRouterMap.filter(route => { //过滤路由表，获取与roles匹配的路由表;
+    // console.log(route)
+    // console.log(hasPermission(roles, route))
+    if (hasPermission(roles, route)) {//调用hasPermission()判断是否与用户权限匹配;
 
-      if (route.children && route.children.length) {
+      if (route.children && route.children.length) {//如果有下级列表则递归执行filterAsyncRouter()来向内查找所有路由;
         route.children = filterAsyncRouter(route.children, roles)
       }
       return true
     }
     return false
   })
-  console.log(accessedRouters)
+  // console.log(accessedRouters)
   return accessedRouters
 }
 
@@ -60,10 +68,11 @@ const permission = {
   },
   mutations: {
     SET_ROUTERS: (state, routers) => {
-      if(state.addRouters == '') {
+      // if (state.addRouters == '') {
         state.addRouters = routers;
-      }
-     
+        console.log(routers);
+      // }
+
       state.routers = constantRouterMap.concat(routers);
       // state.routers.forEach(function(e){
       //     if(e.name==="首页"){
@@ -82,7 +91,7 @@ const permission = {
 
       state.addRouters.forEach(e => {
         if (e.children && e.children.length) {
-          if (getNowRouter(e.children, to) === true) 
+          if (getNowRouter(e.children, to) === true)
             state.siderbar_routers = e;
         }
 
@@ -91,24 +100,25 @@ const permission = {
 
     },
     SET_HEADER_ROUTERS: (state) => {//循环便利出头部导航列表
-      
-      if(state.header_Routers =='') {
+
+      if (state.header_Routers == '') {
         asyncRouterMap.pop();//先删除   pop删除数组最后一个元素并返回被删除的元素;
         state.header_Routers = asyncRouterMap;//此时数组已经被删除最后一个元素;
       }
-      
+
     }
 
   },
   actions: {
-    GenerateRoutes({ commit }, data) {
+    GenerateRoutes({ commit }, data) {//创建路由表
       return new Promise(resolve => {
         const { roles } = data
         let accessedRouters
-        if (roles.indexOf('admin') >= 0) {
+        if (roles.indexOf('admin') >= 0) { //如果账号为admin，直接将路由表赋值给权限路由表 --- 最高权限
+          console.log(asyncRouterMap);
           accessedRouters = asyncRouterMap
         } else {
-          accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
+          accessedRouters = filterAsyncRouter(asyncRouterMap, roles)//如果不是admin，则调用filterAsyncRouter()方法判断需要哪些路由;
         }
 
 

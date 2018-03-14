@@ -50,7 +50,7 @@ export default {
         };
         return {
             loginForm: {
-                email: "editor@wz.com",
+                email: "admin@wz.com",
                 password: "123456"
             },
             loginRules: {
